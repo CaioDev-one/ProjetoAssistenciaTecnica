@@ -1,0 +1,272 @@
+
+
+/* O fundo escuro ocupa toda a viewport */
+body, #root {
+  width: 100vw;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a; /* Cor do fundo escuro */
+  overflow-x: hidden;
+}
+
+/* O container centralizado deve expandir em telas grandes */
+.dashboard-container {
+  width: 96%;              /* Em vez de largura fixa (ex: 1200px), usa porcentagem */
+  max-width: 1600px;        /* Permite expandir bem em monitores Full HD/Wide */
+  margin: 20px auto;        /* Centraliza na tela */
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* Garante que a tabela ocupe 100% da largura sem cortar colunas */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto; /* Mantém rolagem só em celulares/telas muito pequenas */
+}
+
+.table {
+  width: 100%;
+  table-layout: auto; /* Permite ajuste automático das colunas */
+}
+
+.filter-toggle-group > .btn,
+.filter-status-group > .btn {
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.filter-toggle-group > .btn {
+  flex: 1 1 50%;
+}
+
+.filter-toggle-group {
+  overflow: hidden;
+}
+
+.filter-status-group {
+  display: flex !important;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding-bottom: 2px;
+}
+
+.filter-status-group > .btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.filter-status-group::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-status-group::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+
+/* --- CORREÇÃO 2: MODAL BATENDO EM EMBAIXO E OCUPANDO TELA TODA --- */
+
+/* Ajusta o tamanho do modal para não colar nos cantos */
+.custom-modal .modal-dialog {
+  max-width: 720px !important; /* Limita a largura máxima do modal */
+  margin: 1.75rem auto;        /* Deixa espaço em cima e embaixo */
+}
+
+/* Limita a altura do modal na tela */
+.custom-modal .modal-content {
+  max-height: 85vh; /* No máximo 85% da altura da tela */
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Habilita rolagem INTERNA se o formulário for longo */
+.custom-modal .modal-body {
+  overflow-y: auto;
+  max-height: calc(85vh - 130px); /* Desconta o cabeçalho e rodapé do modal */
+  padding: 24px;
+}
+
+.profile-modal {
+  background: rgba(9, 15, 28, 0.72);
+  backdrop-filter: blur(8px);
+  z-index: 1060;
+}
+
+.profile-dialog {
+  max-width: 470px;
+  padding: 16px;
+}
+
+.profile-card {
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(2, 8, 23, 0.35);
+}
+
+.profile-card__cover {
+  position: relative;
+  height: 150px;
+  background:
+    radial-gradient(circle at 15% 25%, rgba(255,255,255,.2) 0 2px, transparent 3px),
+    radial-gradient(circle at 80% 15%, rgba(255,255,255,.16) 0 3px, transparent 4px),
+    linear-gradient(135deg, #101827 0%, #1d4ed8 58%, #38bdf8 100%);
+}
+
+.profile-card__cover::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0;
+  height: 55px;
+  background: linear-gradient(180deg, transparent, rgba(2, 8, 23, .22));
+}
+
+.profile-card__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  opacity: .9;
+}
+
+.profile-card__avatar {
+  position: absolute;
+  z-index: 1;
+  left: 32px;
+  bottom: -34px;
+  width: 86px;
+  height: 86px;
+  display: grid;
+  place-items: center;
+  border: 5px solid #fff;
+  border-radius: 26px;
+  background: linear-gradient(145deg, #2563eb, #0f172a);
+  color: #fff;
+  font-size: 1.55rem;
+  font-weight: 800;
+  box-shadow: 0 12px 24px rgba(15, 23, 42, .28);
+}
+
+.profile-card__body {
+  padding: 48px 30px 24px;
+}
+
+.profile-card__eyebrow {
+  color: #2563eb;
+  font-size: .68rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.profile-card__name {
+  margin: 3px 0 1px;
+  color: #0f172a;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+.profile-card__role {
+  color: #64748b;
+  font-size: .88rem;
+}
+
+.profile-card__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  color: #15803d;
+  background: #f0fdf4;
+  font-size: .72rem;
+  font-weight: 700;
+}
+
+.profile-card__status span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, .16);
+}
+
+.profile-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 24px 0 18px;
+  padding: 16px 8px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: #f8fafc;
+  text-align: center;
+}
+
+.profile-card__stats div {
+  display: grid;
+  gap: 3px;
+}
+
+.profile-card__stats strong {
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.profile-card__stats span,
+.profile-card__details span {
+  color: #64748b;
+  font-size: .7rem;
+}
+
+.profile-card__details {
+  display: grid;
+  gap: 10px;
+}
+
+.profile-card__details div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.profile-card__details strong {
+  color: #1e293b;
+  font-size: .82rem;
+  text-align: right;
+}
+
+.profile-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 30px 24px;
+  color: #64748b;
+  font-size: .75rem;
+}
+
+.profile-card__footer strong {
+  color: #16a34a;
+}
+
+@media (max-width: 420px) {
+  .profile-dialog {
+    padding: 8px;
+  }
+
+  .profile-card__body,
+  .profile-card__footer {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+}
