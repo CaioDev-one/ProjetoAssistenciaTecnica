@@ -11,7 +11,7 @@ Atualizado em 30/09/2026. `[x]` significa concluído; `[ ]` significa pendente. 
 ## P0 — Corrigir a base da demonstração
 
 - [ ] **T01 — Corrigir import de AuthModal.** Arquivo: `src/components/Dashboard/Dashboard.jsx`; import procura `AuthModal.jsx`, arquivo é `authModal.jsx`. Escolher capitalização consistente. Aceite: imports resolvidos e `npm run build` aprovado em Linux.
-- [ ] **T02 — Unificar técnicos.** Arquivos: login, cadastro, dashboard e serviço. Definir se exemplos são mantidos ou substituídos no primeiro cadastro; preservar a política em todos os consumidores. Aceite: cadastrar um técnico e encontrá-lo no login, menu e Nova OS; matrícula duplicada e armazenamento inválido tratados.
+- [x] **T02 — Unificar técnicos.** Implementado em `src/components/services/tecnicosService.js` e conectado ao login, cadastro, autenticação, Dashboard, menu/troca e Nova OS. Exemplos são persistidos somente quando a chave não existe; cadastro preserva a lista e rejeita matrícula duplicada ignorando espaços externos e caixa. Erros de leitura, JSON inválido e gravação são comunicados sem apagar dados.
 - [ ] **T03 — Corrigir “Minhas OS”.** Arquivos: dashboard e `apiServices.js`. Remover identidade 1 fixa e unificar a filtragem. Aceite: técnicos 1, 2, 3 e recém-cadastrado recebem somente suas ordens; alternar usuário atualiza o resultado. Depende de T02.
 - [ ] **T04 — Persistir OS no modo demo.** Arquivos: serviço e dashboard. Criar fonte única de ordens; não reconstruir exemplos a cada filtro. Aceite: criar OS, mudar filtros e atualizar a página mantém o registro no mesmo navegador; falha de armazenamento produz mensagem. Depende de T02.
 - [ ] **T05 — Corrigir contrato de nova OS e busca.** Inicializar `numSerie`/`condicaoFisica`, resolver responsável, garantir ID estável e proteger campos opcionais. Aceite: criar OS e buscar termo sem correspondência não lança exceção; técnico aparece; nenhum aviso de input controlado. Depende de T02/T04.
@@ -52,4 +52,6 @@ T01 → T02 → T03/T04 → T05/T06 → T07 e melhorias de interface → T12 →
 
 ## Verificação desta entrega
 
-Análise estática e consistência documental. Build, lint, testes de integração e revisão visual em navegador não executados. Não marcar tarefas funcionais como concluídas com base somente nesta revisão.
+T02 verificada em 30/09/2026: `npm run lint` e `npm run build` aprovados. No navegador, foi cadastrado um técnico temporário, confirmado na lista do login, autenticado e selecionado como responsável na Nova OS; o teste também bloqueou matrícula duplicada com caixa diferente e espaços externos. JSON inválido, falha de leitura e falha de gravação exibiram erro, sem substituir a lista existente. Os dados temporários foram removidos/restaurados após os testes.
+
+Na primeira execução do lint foi apontado um import `React` não utilizado preexistente em `FilterBar`; removido no arquivo já alterado para desabilitar Nova OS quando técnicos não estão disponíveis. A execução final do lint passou. Build executado no Windows; o caminho de `AuthModal` com capitalização divergente continua como risco preexistente em sistemas sensíveis a caixa (T01), não coberto pelo build local. As demais tarefas continuam pendentes.

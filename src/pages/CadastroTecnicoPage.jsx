@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { cadastrarTecnico } from '../components/services/tecnicosService.js';
 
 const criarAvatar = (nome) => {
   const partes = nome.trim().split(/\s+/).filter(Boolean);
@@ -29,7 +30,7 @@ export default function CadastroTecnicoPage() {
     setErro('');
     setSucesso('');
 
-    if (!form.nome || !form.matricula || !form.unidade || !form.senha) {
+    if (!form.nome.trim() || !form.matricula.trim() || !form.unidade.trim() || !form.senha) {
       setErro('Preencha todos os campos obrigatórios.');
       return;
     }
@@ -39,25 +40,26 @@ export default function CadastroTecnicoPage() {
       return;
     }
 
-    const salvos = JSON.parse(localStorage.getItem('techassist_tecnicos') || '[]');
-    const novoTecnico = {
-      id: Date.now(),
-      nome: form.nome,
-      cargo: form.cargo,
-      matricula: form.matricula,
-      unidade: form.unidade,
-      osConcluidas: 0,
-      avaliacao: 'Nova ★',
-      avatar: criarAvatar(form.nome),
-      senha: form.senha
-    };
+    try {
+      cadastrarTecnico({
+        id: Date.now(),
+        nome: form.nome.trim(),
+        cargo: form.cargo.trim(),
+        matricula: form.matricula,
+        unidade: form.unidade.trim(),
+        osConcluidas: 0,
+        avaliacao: 'Nova ★',
+        avatar: criarAvatar(form.nome),
+        senha: form.senha
+      });
+      setSucesso('Técnico cadastrado com sucesso!');
 
-    localStorage.setItem('techassist_tecnicos', JSON.stringify([...salvos, novoTecnico]));
-    setSucesso('Técnico cadastrado com sucesso!');
-
-    setTimeout(() => {
-      navigate('/login');
-    }, 1000);
+      setTimeout(() => {
+        navigate('/login');
+      }, 1000);
+    } catch (error) {
+      setErro(error.message || 'Não foi possível cadastrar o técnico.');
+    }
   };
 
   return (

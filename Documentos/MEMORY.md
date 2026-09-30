@@ -2,6 +2,27 @@
 
 Registro de contexto e decisões para continuidade. Não é mecanismo automático de memória nem substitui o código atual. Não incluir credenciais ou dados reais de clientes.
 
+## 30/09/2026 — T02: fonte única de técnicos
+
+### Entregue
+
+- Criado `src/components/services/tecnicosService.js` como ponto único de leitura e cadastro em `techassist_tecnicos`.
+- Os exemplos demo são gravados apenas quando a chave não existe. Cadastro preserva dados existentes e rejeita matrículas repetidas ignorando espaços nas pontas e diferenças de caixa.
+- Login, autenticação simulada, Dashboard, troca de usuário e seletor de responsável da Nova OS usam a lista central.
+- Erros de leitura, JSON inválido e gravação são exibidos sem apagar/substituir dados silenciosamente; cadastro não confirma sucesso se a gravação falhar.
+
+### Verificação
+
+- `npm run lint`: aprovado após remover um import `React` não utilizado que já existia no FilterBar.
+- `npm run build`: aprovado no Windows. O import de `AuthModal` com capitalização divergente permanece como risco preexistente para sistemas sensíveis a caixa (T01); build Linux não executado.
+- Fluxo de navegador: cadastro temporário, preservação dos três exemplos, login do novo técnico e seleção como responsável na Nova OS aprovados. Duplicidade com caixa/espaços diferentes bloqueada. JSON inválido, leitura bloqueada e escrita bloqueada comunicaram erro; lista anterior preservada. Dados de teste removidos/restaurados.
+- O lint apontou inicialmente chamadas síncronas de `setState` em efeitos nos componentes alterados; substituídas por inicialização do estado, e lint final passou.
+
+### Limites mantidos
+
+- Autenticação, armazenamento de técnicos e ordens continuam demonstrativos e locais ao navegador. Nenhum backend ou outra tarefa foi implementado.
+- O Dashboard ainda contém fallback para primeiro técnico ao abrir diretamente sem estado de navegação; guarda de rota/sessão é T06 e permanece pendente.
+
 ## 30/09/2026 — Revisão inicial e documentação
 
 ### Pedido do autor

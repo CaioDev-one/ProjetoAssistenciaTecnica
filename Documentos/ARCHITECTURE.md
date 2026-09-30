@@ -22,23 +22,28 @@ Aplicação SPA em JavaScript/JSX, React, React Router, Vite e Bootstrap. Versõ
 | `src/components/AuthModal/authModal.jsx` | Confirma senha na troca de técnico |
 | `src/components/ProfileModal/profileModal.jsx` | Exibe dados de perfil |
 | `src/components/services/apiServices.js` | Simula login, consulta e criação com atrasos artificiais |
+| `src/components/services/tecnicosService.js` | Fonte única, inicialização demo e persistência local de técnicos |
 | `src/index.css`, `src/App.css` | Estilos globais, estilos de template e de componentes |
 
 ## Fluxo de dados atual
 
-1. Login lê técnicos do armazenamento, com fallback para exemplos locais.
-2. `apiService.login(tecnicoId, senha)` valida localmente e retorna `{ token, user }`. O token é fictício.
-3. Login passa `user` pelo estado da navegação. O dashboard usa esse estado ou o primeiro técnico da lista fixa.
-4. O dashboard consulta `getOrdens` ao alterar escopo/status. O serviço recria os três exemplos a cada chamada.
-5. `useMemo` aplica filtros novamente. O resultado alimenta tabela e KPIs.
-6. `criarOS` retorna um objeto que é inserido no estado React. Não o grava em uma base durável.
+1. `tecnicosService.getTecnicos()` lê `techassist_tecnicos`; somente quando a chave não existe, persiste os três técnicos demo. Lista vazia ou dados inválidos não são substituídos.
+2. Cadastro usa `cadastrarTecnico()`, que preserva a lista, normaliza matrícula para rejeitar duplicatas ignorando espaços externos e caixa, e só confirma sucesso depois de gravar.
+3. Login e `apiService.login(tecnicoId, senha)` usam a mesma fonte. A autenticação continua simulada e retorna token fictício.
+4. Dashboard recebe o técnico autenticado e carrega a lista central para Navbar/troca de usuário e para o seletor de responsável da Nova OS.
+5. O dashboard consulta `getOrdens` ao alterar escopo/status. O serviço recria os três exemplos a cada chamada.
+6. `useMemo` aplica filtros novamente. O resultado alimenta tabela e KPIs.
+7. `criarOS` retorna um objeto que é inserido no estado React. Não o grava em uma base durável.
 
 Não há `fetch`, cliente HTTP, contrato de servidor, sincronização em tempo real nem proteção efetiva de dados.
+Falhas de leitura, JSON inválido e falhas de escrita dos técnicos são comunicadas aos consumidores; os dados existentes não são apagados silenciosamente.
 
 ## Contratos atuais do serviço
 
 | Método | Entrada | Saída e limitações |
 | --- | --- | --- |
+| `getTecnicos` | Nenhuma | Lista salva; sem chave, grava e retorna os exemplos demo; falhas são lançadas sem sobrescrever dados existentes |
+| `cadastrarTecnico` | Objeto do técnico | Preserva a lista, valida matrícula sem distinguir caixa/espaços nas pontas e grava; erros de duplicidade/armazenamento são lançados |
 | `login` | `tecnicoId`, `senha` | Promise com token fictício e usuário sem senha; pode rejeitar credenciais |
 | `getOrdens` | `token`, `apenasMinhas=false`, `status='Todos'` | Promise de array fixo; token ignorado; “minhas” fixa `tecnicoId === 1` |
 | `criarOS` | `token`, `dadosOS` | Promise de OS; ID aleatório de quatro dígitos, status/data/valor formatados; sem `tecnicoNome` derivado |
@@ -53,7 +58,7 @@ Não há `fetch`, cliente HTTP, contrato de servidor, sincronização em tempo r
 ## Problemas arquiteturais confirmados por leitura
 
 - Import de `../AuthModal/AuthModal.jsx` difere do arquivo `authModal.jsx`. A checagem estática não resolve esse caminho em Linux.
-- Três definições de técnicos divergem. O primeiro cadastro grava somente o novo registro quando não havia armazenamento; login deixa de usar os exemplos, enquanto o dashboard continua exibindo-os.
+- A persistência de técnicos agora é centralizada; autenticação ainda é local e demonstrativa, sem sessão durável.
 - Filtro aplicado no serviço e no dashboard, com identidades diferentes; técnicos 2 e 3 podem receber lista vazia em “Minhas OS”.
 - Trocar status/escopo recarrega exemplos e descarta OS criadas em memória.
 - Nova OS não recebe `tecnicoNome`; a busca pode executar `undefined.toLowerCase()` quando cliente/equipamento não correspondem ao termo.

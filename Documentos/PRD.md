@@ -20,13 +20,13 @@ Jornada principal: `/login` → seleção de técnico e senha → `/dashboard` �
 
 | Área | Implementação observada | Limitação |
 | --- | --- | --- |
-| Login | Seleção de técnico, senha, mensagem de erro e estado de envio | Validação local; token fictício e não utilizado como sessão |
-| Cadastro de técnico | Nome, cargo, matrícula, unidade e senha gravados em `localStorage` | Sem validação de matrícula duplicada; listas de técnicos divergentes |
-| Dashboard | Navbar, quatro indicadores, filtros e tabela | Rota aberta diretamente; identidade padrão quando não há estado de navegação |
+| Login | Seleção de técnicos lidos pela fonte local compartilhada, senha, erro e envio | Validação local; token fictício e não utilizado como sessão |
+| Cadastro de técnico | Cadastro preserva a lista central em `localStorage` e rejeita matrícula duplicada sem distinguir caixa/espaços externos | Armazenamento restrito ao navegador; erros de leitura/gravação impedem a operação e são exibidos |
+| Dashboard | Navbar, quatro indicadores, filtros, tabela e lista central de técnicos para troca e Nova OS | Rota aberta diretamente; sem estado de navegação seleciona o primeiro técnico salvo |
 | Consulta | Busca por cliente, equipamento e nome do técnico | Não busca por número da OS; nome do técnico ausente pode quebrar a busca |
 | Filtros | Todas/Minhas e seleção de status | Serviço fixa técnico 1; filtro omite “Pronto para Retirada” |
 | Nova OS | Formulário com cliente, contato, equipamento, defeito, acessórios, responsável, prioridade e valor | Registro apenas no estado React; desaparece ao recarregar ou refazer consulta |
-| Perfil e troca | Modal de perfil e troca mediante senha simulada | Indicadores parcialmente fictícios; menu usa lista fixa |
+| Perfil e troca | Modal de perfil e troca mediante senha simulada; menu recebe a lista central | Indicadores do perfil podem ser fictícios |
 | Ver/Editar | Botões exibidos na tabela | Sem ação implementada |
 
 ## Escopo proposto para a próxima versão demonstrável

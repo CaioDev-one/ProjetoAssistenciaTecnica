@@ -1,43 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../components/services/apiServices.js';
-
-const DEFAULT_TECNICOS = [
-  { id: 1, nome: 'Caio Costa', cargo: 'Técnico Especialista Hardware', avatar: 'CC', senha: '123456' },
-  { id: 2, nome: 'Mariana Silva', cargo: 'Técnica Especialista Hardware', avatar: 'MS', senha: '123456' },
-  { id: 3, nome: 'Lucas Mendes', cargo: 'Técnico Especialista Hardware', avatar: 'LM', senha: '123456' },
-];
-
-const getTecnicosSalvos = () => {
-  try {
-    const salvos = JSON.parse(localStorage.getItem('techassist_tecnicos') || 'null');
-    if (Array.isArray(salvos) && salvos.length > 0) {
-      return salvos;
-    }
-  } catch {
-    // ignora erro de leitura
-  }
-
-  return DEFAULT_TECNICOS;
-};
+import { getTecnicos } from '../components/services/tecnicosService.js';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const [tecnicos, setTecnicos] = useState(DEFAULT_TECNICOS);
-  const [tecnicoSelecionado, setTecnicoSelecionado] = useState(DEFAULT_TECNICOS[0]);
+  const [dadosTecnicos] = useState(() => {
+    try {
+      const tecnicos = getTecnicos();
+      return {
+        tecnicos,
+        erro: tecnicos.length === 0
+          ? 'Nenhum técnico cadastrado. Cadastre um técnico para continuar.'
+          : ''
+      };
+    } catch (error) {
+      return { tecnicos: [], erro: error.message || 'Não foi possível carregar os técnicos salvos.' };
+    }
+  });
+  const tecnicos = dadosTecnicos.tecnicos;
+  const [tecnicoSelecionado, setTecnicoSelecionado] = useState(tecnicos[0] ?? null);
   const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
+  const [erro, setErro] = useState(dadosTecnicos.erro);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    const list = getTecnicosSalvos();
-    setTecnicos(list);
-    setTecnicoSelecionado(list[0]);
-  }, []);
 
   const handleLogin = async (event) => {
     event.preventDefault();
     setErro('');
+    if (!tecnicoSelecionado) {
+      setErro('Nenhum técnico disponível para entrar. Verifique os dados salvos.');
+      return;
+    }
     setLoading(true);
 
     try {
@@ -186,7 +179,7 @@ export default function LoginPage() {
                   {erro && <div className="invalid-feedback d-block">{erro}</div>}
                 </div>
 
-                <button type="submit" className="btn btn-primary btn-lg fw-bold w-100" disabled={loading} style={{ borderRadius: '14px' }}>
+                <button type="submit" className="btn btn-primary btn-lg fw-bold w-100" disabled={loading || !tecnicoSelecionado} style={{ borderRadius: '14px' }}>
                   {loading ? 'Acessando...' : 'Entrar no sistema'}
                 </button>
 

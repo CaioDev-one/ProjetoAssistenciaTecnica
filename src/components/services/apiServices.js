@@ -1,57 +1,10 @@
-const DEFAULT_TECNICOS = [
-  {
-    id: 1,
-    nome: 'Caio Costa',
-    cargo: 'Técnico Especialista Hardware',
-    matricula: 'TECH-2026-01',
-    unidade: 'São Paulo - Centro',
-    osConcluidas: 148,
-    avaliacao: '4.9 ★',
-    avatar: 'CC',
-    senha: '123456'
-  },
-  {
-    id: 2,
-    nome: 'Mariana Silva',
-    cargo: 'Técnica Especialista Hardware',
-    matricula: 'TECH-2026-02',
-    unidade: 'São Paulo - Vila Olímpia',
-    osConcluidas: 126,
-    avaliacao: '4.8 ★',
-    avatar: 'MS',
-    senha: '123456'
-  },
-  {
-    id: 3,
-    nome: 'Lucas Mendes',
-    cargo: 'Técnico Especialista Hardware',
-    matricula: 'TECH-2026-03',
-    unidade: 'Rio de Janeiro - Centro',
-    osConcluidas: 171,
-    avaliacao: '4.9 ★',
-    avatar: 'LM',
-    senha: '123456'
-  }
-];
-
-const getTecnicosArmazenados = () => {
-  try {
-    const armazenados = JSON.parse(localStorage.getItem('techassist_tecnicos') || 'null');
-    if (Array.isArray(armazenados) && armazenados.length > 0) {
-      return armazenados;
-    }
-  } catch {
-    // ignora erros de leitura
-  }
-
-  return DEFAULT_TECNICOS;
-};
+import { getTecnicos } from './tecnicosService.js';
 
 export const apiService = {
   async login(tecnicoId, senha) {
     await new Promise((resolve) => setTimeout(resolve, 600));
 
-    const tecnicos = getTecnicosArmazenados();
+    const tecnicos = getTecnicos();
     const tecnico = tecnicos.find((item) => Number(item.id) === Number(tecnicoId));
 
     if (!tecnico) {
