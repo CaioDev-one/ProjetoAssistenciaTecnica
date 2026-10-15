@@ -34,8 +34,8 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const resposta = await apiService.login(tecnicoSelecionado.id, senha);
-      navigate('/dashboard', { state: { tecnico: resposta.user } });
+      await apiService.login(tecnicoSelecionado.id, senha);
+      navigate('/dashboard', { replace: true });
     } catch (error) {
       setErro(error.message || 'Não foi possível entrar no sistema.');
     } finally {
@@ -122,13 +122,14 @@ export default function LoginPage() {
               <form onSubmit={handleLogin} className="d-grid gap-3">
                 <div className="d-grid gap-2">
                   <label className="form-label fw-semibold small text-dark mb-0">Técnico responsável</label>
-                  <div className="d-grid gap-2">
+                  <div className="d-grid gap-2" role="group" aria-label="Selecione o técnico demonstrativo">
                     {tecnicos.map((item) => {
                       const ativo = tecnicoSelecionado?.id === item.id;
                       return (
                         <button
                           key={item.id}
                           type="button"
+                          aria-pressed={ativo}
                           onClick={() => setTecnicoSelecionado(item)}
                           className={`btn d-flex align-items-center justify-content-between w-100 text-start ${ativo ? 'border-primary' : 'border'}`}
                           style={{
@@ -170,6 +171,7 @@ export default function LoginPage() {
                   <input
                     id="senha"
                     type="password"
+                    required
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
                     className={`form-control ${erro ? 'is-invalid' : ''}`}
@@ -192,8 +194,8 @@ export default function LoginPage() {
                   Cadastrar técnico
                 </button>
 
-                <div className="text-center small text-secondary">
-                  Dica de teste: <strong className="text-dark">123456</strong>
+                <div className="alert alert-info small mb-0" role="note">
+                  Acesso demonstrativo: a validação e os dados são locais neste navegador e não oferecem segurança de produção.
                 </div>
               </form>
             </div>

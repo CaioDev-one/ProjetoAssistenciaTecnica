@@ -1,4 +1,6 @@
-export default function OSTable({ ordens, loading }) {
+import { formatarValorBRL } from '../services/osConstants.js';
+
+export default function OSTable({ ordens, loading, erro, onView, onEdit }) {
   const getBadgeStyle = (status) => {
     switch (status) {
       case 'Em Análise': return 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
@@ -11,7 +13,7 @@ export default function OSTable({ ordens, loading }) {
 
   return (
     <div className="card border-0 shadow-sm overflow-hidden">
-      <div className="table-responsive">
+      <div className="table-responsive d-none d-lg-block">
         <table className="table table-hover align-middle mb-0 text-nowrap">
           <thead className="bg-light border-bottom">
             <tr>
@@ -30,33 +32,36 @@ export default function OSTable({ ordens, loading }) {
               <tr>
                 <td colSpan="8" className="text-center py-5 text-muted">
                   <div className="spinner-border spinner-border-sm me-2 text-primary" role="status"></div>
-                  Carregando dados com segurança...
+                  Carregando ordens de serviço...
                 </td>
               </tr>
+            ) : erro ? (
+              <tr><td colSpan="8" className="text-center py-5 text-muted">Não foi possível exibir as ordens.</td></tr>
             ) : ordens.length > 0 ? (
               ordens.map((os) => {
                 const isUrgente = os.prioridade === 'Urgente';
+                const nomeCliente = String(os.cliente ?? 'Cliente não informado');
                 return (
                   <tr key={os.id}>
                     <td className="ps-4 fw-bold text-primary">#{os.id}</td>
                     <td>
                       <div className="d-flex align-items-center gap-2">
                         <div className={`rounded-circle d-flex align-items-center justify-content-center fw-bold fs-7 ${isUrgente ? 'bg-danger-subtle text-danger' : 'bg-secondary-subtle text-dark'}`} style={{ width: 32, height: 32 }}>
-                          {os.cliente.charAt(0)}
+                          {nomeCliente.charAt(0)}
                         </div>
                         <div>
-                          <div className={`fw-bold ${isUrgente ? 'text-danger' : 'text-dark'}`}>{os.cliente}</div>
-                          <div className="text-muted fs-7">{os.contato}</div>
+                          <div className={`fw-bold ${isUrgente ? 'text-danger' : 'text-dark'}`}>{nomeCliente}</div>
+                          <div className="text-muted fs-7">{os.contato || 'Telefone não informado'}</div>
                         </div>
                       </div>
                     </td>
                     <td>
-                      <div className="fw-semibold text-dark">{os.equipamento}</div>
-                      <div className="text-muted fs-7">{os.defeito}</div>
+                      <div className="fw-semibold text-dark">{os.equipamento || 'Equipamento não informado'}</div>
+                      <div className="text-muted fs-7">{os.defeito || 'Defeito não informado'}</div>
                     </td>
                     <td>
                       <span className="badge bg-light text-dark border border-secondary-subtle fw-semibold px-2 py-1">
-                        {os.tecnicoNome}
+                        {os.tecnicoNome || 'Não atribuído'}
                       </span>
                     </td>
                     <td className="text-muted fs-7">{os.data}</td>
@@ -65,10 +70,10 @@ export default function OSTable({ ordens, loading }) {
                         {os.status}
                       </span>
                     </td>
-                    <td className="fw-bold text-dark">{os.valor}</td>
+                    <td className="fw-bold text-dark">{formatarValorBRL(os.valor)}</td>
                     <td className="text-end pe-4">
-                      <button className="btn btn-sm btn-light border me-1 text-secondary fw-semibold">Ver</button>
-                      <button className="btn btn-sm btn-outline-primary fw-semibold">Editar</button>
+                      <button type="button" className="btn btn-sm btn-light border me-1 text-secondary fw-semibold" aria-label={`Ver ordem ${os.id}`} onClick={() => onView(os)}>Ver</button>
+                      <button type="button" className="btn btn-sm btn-outline-primary fw-semibold" aria-label={`Editar ordem ${os.id}`} onClick={() => onEdit(os)}>Editar</button>
                     </td>
                   </tr>
                 );
@@ -82,6 +87,35 @@ export default function OSTable({ ordens, loading }) {
             )}
           </tbody>
         </table>
+      </div>
+      <div className="d-lg-none">
+        {loading ? (
+          <div className="p-4 text-center text-muted" role="status">Carregando ordens de serviço...</div>
+        ) : erro ? (
+          <div className="p-4 text-center text-muted">Não foi possível exibir as ordens.</div>
+        ) : ordens.length ? ordens.map((os) => (
+          <article className="border-bottom p-3" key={os.id}>
+            <div className="d-flex justify-content-between align-items-start gap-2">
+              <div>
+                <div className="fw-bold text-primary">OS #{os.id}</div>
+                <div className="fw-semibold text-break">{os.cliente || 'Cliente não informado'}</div>
+              </div>
+              <span className={`badge rounded-pill ${getBadgeStyle(os.status)}`}>{os.status || 'Status não informado'}</span>
+            </div>
+            <div className="small mt-2 text-break">{os.equipamento || 'Equipamento não informado'}</div>
+            <div className="small text-secondary text-break">{os.defeito || 'Defeito não informado'}</div>
+            <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2 small">
+              <span>{os.tecnicoNome || 'Não atribuído'} · {formatarValorBRL(os.valor)}</span>
+              <span className="text-secondary">{os.data}</span>
+            </div>
+            <div className="d-flex gap-2 mt-3">
+              <button type="button" className="btn btn-sm btn-light border" aria-label={`Ver ordem ${os.id}`} onClick={() => onView(os)}>Ver</button>
+              <button type="button" className="btn btn-sm btn-outline-primary" aria-label={`Editar ordem ${os.id}`} onClick={() => onEdit(os)}>Editar</button>
+            </div>
+          </article>
+        )) : (
+          <p className="mb-0 p-4 text-center text-muted">Nenhuma ordem de serviço encontrada.</p>
+        )}
       </div>
     </div>
   );

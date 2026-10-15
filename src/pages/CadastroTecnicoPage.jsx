@@ -119,32 +119,33 @@ export default function CadastroTecnicoPage() {
 
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '16px' }}>
           <div style={{ display: 'grid', gap: '8px' }}>
-            <label style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Nome completo</label>
-            <input name="nome" value={form.nome} onChange={handleChange} placeholder="Ex: João da Silva" style={inputStyle} />
+            <label htmlFor="cadastro-nome" style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Nome completo</label>
+            <input id="cadastro-nome" name="nome" required value={form.nome} onChange={handleChange} placeholder="Ex: João da Silva" style={inputStyle} />
           </div>
 
           <div style={{ display: 'grid', gap: '8px' }}>
-            <label style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Cargo</label>
-            <input name="cargo" value={form.cargo} onChange={handleChange} style={inputStyle} />
+            <label htmlFor="cadastro-cargo" style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Cargo</label>
+            <input id="cadastro-cargo" name="cargo" value={form.cargo} onChange={handleChange} style={inputStyle} />
           </div>
 
           <div style={{ display: 'grid', gap: '8px' }}>
-            <label style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Matrícula</label>
-            <input name="matricula" value={form.matricula} onChange={handleChange} placeholder="Ex: TECH-2026-10" style={inputStyle} />
+            <label htmlFor="cadastro-matricula" style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Matrícula</label>
+            <input id="cadastro-matricula" name="matricula" required value={form.matricula} onChange={handleChange} placeholder="Ex: TECH-2026-10" style={inputStyle} />
           </div>
 
           <div style={{ display: 'grid', gap: '8px' }}>
-            <label style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Unidade</label>
-            <input name="unidade" value={form.unidade} onChange={handleChange} placeholder="Ex: São Paulo - Centro" style={inputStyle} />
+            <label htmlFor="cadastro-unidade" style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Unidade</label>
+            <input id="cadastro-unidade" name="unidade" required value={form.unidade} onChange={handleChange} placeholder="Ex: São Paulo - Centro" style={inputStyle} />
           </div>
 
           <div style={{ display: 'grid', gap: '8px' }}>
-            <label style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Senha de acesso</label>
-            <input type="password" name="senha" value={form.senha} onChange={handleChange} placeholder="Digite uma senha" style={inputStyle} />
+            <label htmlFor="cadastro-senha" style={{ fontWeight: 700, fontSize: '0.8rem', color: '#334155' }}>Senha local de demonstração</label>
+            <input id="cadastro-senha" type="password" name="senha" required value={form.senha} onChange={handleChange} placeholder="Digite uma senha" style={inputStyle} />
           </div>
 
-          {erro && <div style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.8rem' }}>{erro}</div>}
-          {sucesso && <div style={{ color: '#15803d', fontWeight: 600, fontSize: '0.8rem' }}>{sucesso}</div>}
+          <p className="small text-secondary mb-0" role="note">A senha fica armazenada localmente apenas para demonstração; não use dados reais.</p>
+          {erro && <div role="alert" style={{ color: '#dc2626', fontWeight: 600, fontSize: '0.8rem' }}>{erro}</div>}
+          {sucesso && <div role="status" style={{ color: '#15803d', fontWeight: 600, fontSize: '0.8rem' }}>{sucesso}</div>}
 
           <button type="submit" style={{
             width: '100%',

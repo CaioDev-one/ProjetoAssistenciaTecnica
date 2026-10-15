@@ -1,4 +1,8 @@
-export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onClose, onSave }) {
+import { useId } from 'react';
+import Modal from 'react-bootstrap/Modal';
+
+export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro, onClose, onSave }) {
+  const titleId = useId();
   const acessoriosOpcoes = ['Carregador', 'Cabo USB', 'Capa de Proteção', 'Caixa Original', 'Cartão SIM/Memory', 'Fonte de Alimentação', 'Cabo de Força (PC)'];
   const servicosFrequentes = [
     'Limpeza Preventiva & Pasta Térmica',
@@ -10,33 +14,43 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
   ];
 
   const toggleAcessorio = (item) => {
-    if (novaOS.acessorios.includes(item)) {
-      setNovaOS({ ...novaOS, acessorios: novaOS.acessorios.filter(a => a !== item) });
+    const acessorios = novaOS.acessorios ?? [];
+    if (acessorios.includes(item)) {
+      setNovaOS({ ...novaOS, acessorios: acessorios.filter(a => a !== item) });
     } else {
-      setNovaOS({ ...novaOS, acessorios: [...novaOS.acessorios, item] });
+      setNovaOS({ ...novaOS, acessorios: [...acessorios, item] });
     }
   };
 
   return (
-    <div className="modal show d-block bg-dark bg-opacity-50" onClick={() => !loading && onClose()}>
-      <div className="modal-dialog modal-dialog-centered modal-lg my-3" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-          
-          <div className="bg-dark text-white p-3 px-4 d-flex justify-content-between align-items-center border-bottom border-primary border-3">
-            <strong className="fs-6">Nova Ordem de Serviço</strong>
-            <button type="button" className="btn-close btn-close-white" disabled={loading} onClick={onClose}></button>
-          </div>
-
-          <form onSubmit={onSave}>
-            <div className="modal-body p-4 bg-light" style={{ maxHeight: '58vh', overflowY: 'auto' }}>
+    <Modal
+      show
+      onHide={onClose}
+      centered
+      scrollable
+      size="lg"
+      aria-labelledby={titleId}
+      restoreFocus
+      keyboard={!loading}
+      backdrop={loading ? 'static' : true}
+      contentClassName="border-0 shadow-lg rounded-4 overflow-hidden"
+    >
+      <Modal.Header className="bg-dark text-white border-bottom border-primary border-3">
+        <Modal.Title id={titleId} className="fs-6">Nova Ordem de Serviço</Modal.Title>
+        <button type="button" className="btn-close btn-close-white" aria-label="Fechar nova ordem" disabled={loading} onClick={onClose} />
+      </Modal.Header>
+      <form onSubmit={onSave}>
+        <Modal.Body className="p-3 p-md-4 bg-light">
+          {erro && <div className="alert alert-danger" role="alert">{erro}</div>}
               
               {/* SEÇÃO 1: DADOS DO CLIENTE */}
               <div className="bg-white p-3 rounded-3 border mb-3 shadow-sm">
                 <h6 className="fw-bold text-primary mb-3">1. Dados do Cliente</h6>
                 <div className="row g-3">
                   <div className="col-12 col-md-7">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Nome Completo *</label>
+                    <label htmlFor="nova-os-cliente" className="form-label fw-semibold fs-7 text-secondary">Nome Completo *</label>
                     <input 
+                      id="nova-os-cliente"
                       type="text" 
                       className="form-control" 
                       required 
@@ -46,9 +60,10 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                     />
                   </div>
                   <div className="col-12 col-md-5">
-                    <label className="form-label fw-semibold fs-7 text-secondary">WhatsApp / Telefone *</label>
+                    <label htmlFor="nova-os-contato" className="form-label fw-semibold fs-7 text-secondary">WhatsApp / Telefone *</label>
                     <input 
-                      type="text" 
+                      id="nova-os-contato"
+                      type="tel" 
                       className="form-control" 
                       required
                       placeholder="(11) 99999-9999"
@@ -64,8 +79,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                 <h6 className="fw-bold text-primary mb-3">2. Equipamento & Condição</h6>
                 <div className="row g-3">
                   <div className="col-12 col-md-4">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Categoria</label>
+                    <label htmlFor="nova-os-tipo" className="form-label fw-semibold fs-7 text-secondary">Categoria</label>
                     <select 
+                      id="nova-os-tipo"
                       className="form-select"
                       value={novaOS.tipoEquipamento}
                       onChange={(e) => setNovaOS({ ...novaOS, tipoEquipamento: e.target.value })}
@@ -79,8 +95,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                     </select>
                   </div>
                   <div className="col-12 col-md-5">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Marca, Modelo ou Configuração *</label>
+                    <label htmlFor="nova-os-equipamento" className="form-label fw-semibold fs-7 text-secondary">Marca, Modelo ou Configuração *</label>
                     <input 
+                      id="nova-os-equipamento"
                       type="text" 
                       className="form-control" 
                       required 
@@ -90,8 +107,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                     />
                   </div>
                   <div className="col-12 col-md-3">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Nº de Série / IMEI</label>
+                    <label htmlFor="nova-os-serie" className="form-label fw-semibold fs-7 text-secondary">Nº de Série / IMEI</label>
                     <input 
+                      id="nova-os-serie"
                       type="text" 
                       className="form-control" 
                       placeholder="Opcional"
@@ -102,6 +120,7 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                   <div className="col-12">
                     <label className="form-label fw-semibold fs-7 text-secondary">Estado Físico / Avarias Pré-existentes</label>
                     <input 
+                      id="nova-os-condicao"
                       type="text" 
                       className="form-control" 
                       placeholder="Ex: Poeira acumulada, arranhões na tampa, gabinete sem tampa lateral..."
@@ -118,7 +137,7 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                 <div className="row g-3">
                   <div className="col-12">
                     <div className="d-flex justify-content-between align-items-center mb-1">
-                      <label className="form-label fw-semibold fs-7 text-secondary mb-0">Defeito Relatado / Serviço Solicitado *</label>
+                      <label htmlFor="nova-os-defeito" className="form-label fw-semibold fs-7 text-secondary mb-0">Defeito Relatado / Serviço Solicitado *</label>
                       <small className="text-muted fs-8">Clique abaixo para preenchimento rápido:</small>
                     </div>
 
@@ -152,10 +171,10 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                   </div>
 
                   <div className="col-12">
-                    <label className="form-label fw-semibold fs-7 text-secondary mb-2">Acessórios Deixados com o Aparelho:</label>
-                    <div className="d-flex flex-wrap gap-2">
+                    <div id="nova-os-acessorios-label" className="form-label fw-semibold fs-7 text-secondary mb-2">Acessórios Deixados com o Aparelho:</div>
+                    <div className="d-flex flex-wrap gap-2" role="group" aria-labelledby="nova-os-acessorios-label">
                       {acessoriosOpcoes.map((item) => {
-                        const ativo = novaOS.acessorios.includes(item);
+                        const ativo = (novaOS.acessorios ?? []).includes(item);
                         return (
                           <button
                             key={item}
@@ -177,8 +196,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                 <h6 className="fw-bold text-primary mb-3">4. Atribuição e Estimativa</h6>
                 <div className="row g-3">
                   <div className="col-12 col-md-4">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Técnico Responsável</label>
+                    <label htmlFor="nova-os-tecnico" className="form-label fw-semibold fs-7 text-secondary">Técnico Responsável *</label>
                     <select 
+                      id="nova-os-tecnico"
                       className="form-select"
                       value={novaOS.tecnicoId}
                       onChange={(e) => setNovaOS({ ...novaOS, tecnicoId: Number(e.target.value) })}
@@ -189,8 +209,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                     </select>
                   </div>
                   <div className="col-12 col-md-4">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Prioridade</label>
+                    <label htmlFor="nova-os-prioridade" className="form-label fw-semibold fs-7 text-secondary">Prioridade</label>
                     <select 
+                      id="nova-os-prioridade"
                       className="form-select"
                       value={novaOS.prioridade}
                       onChange={(e) => setNovaOS({ ...novaOS, prioridade: e.target.value })}
@@ -200,8 +221,9 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                     </select>
                   </div>
                   <div className="col-12 col-md-4">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Valor Estimado (R$)</label>
+                    <label htmlFor="nova-os-valor" className="form-label fw-semibold fs-7 text-secondary">Valor Estimado (R$)</label>
                     <input 
+                      id="nova-os-valor"
                       type="number" 
                       step="0.01" 
                       className="form-control" 
@@ -213,18 +235,14 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, onCl
                 </div>
               </div>
 
-            </div>
-
-            <div className="modal-footer bg-white p-3 border-top justify-content-between">
-              <button type="button" className="btn btn-outline-secondary btn-sm fw-semibold" disabled={loading} onClick={onClose}>Cancelar</button>
-              <button type="submit" className="btn btn-primary btn-sm fw-bold px-4" disabled={loading}>
-                {loading ? 'Salvando...' : 'Criar Ordem de Serviço'}
-              </button>
-            </div>
-          </form>
-
-        </div>
-      </div>
-    </div>
+        </Modal.Body>
+        <Modal.Footer className="bg-white border-top justify-content-between">
+          <button type="button" className="btn btn-outline-secondary btn-sm fw-semibold" disabled={loading} onClick={onClose}>Cancelar</button>
+          <button type="submit" className="btn btn-primary btn-sm fw-bold px-4" disabled={loading}>
+            {loading ? 'Salvando...' : 'Criar Ordem de Serviço'}
+          </button>
+        </Modal.Footer>
+      </form>
+    </Modal>
   );
 }

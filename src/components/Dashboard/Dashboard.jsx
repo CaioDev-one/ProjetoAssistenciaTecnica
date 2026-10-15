@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/apiServices.js';
 import AuthModal from '../AuthModal/AuthModal.jsx';
 import FilterBar from '../FilterBar/filterBars.jsx';
@@ -7,8 +7,11 @@ import KpiCards from '../KpiCards/kpiCards.jsx';
 import Navbar from '../NavBar/navBar.jsx';
 import NovaOSModal from '../NovaOSModal/novaOSmodal.jsx';
 import OSTable from '../OSTable/OStable.jsx';
+import OSDetailsModal from '../OSTable/OSDetailsModal.jsx';
 import ProfileModal from '../ProfileModal/profileModal.jsx';
 import { getTecnicos } from '../services/tecnicosService.js';
+import { encerrarSessao } from '../services/sessionService.js';
+import { STATUS_TODOS } from '../services/osConstants.js';
 
 const novaOSInicial = {
   cliente: '',
@@ -17,29 +20,31 @@ const novaOSInicial = {
   equipamento: '',
   defeito: '',
   acessorios: [],
+  numSerie: '',
+  condicaoFisica: '',
   tecnicoId: '',
   prioridade: 'Normal',
   valor: '',
 };
 
-export default function Dashboard() {
-  const location = useLocation();
+export default function Dashboard({ tecnicoDaSessao }) {
   const navigate = useNavigate();
-  const tecnicoInicial = location.state?.tecnico || null;
   const [dadosTecnicos] = useState(() => {
     try {
       const lista = getTecnicos();
       return {
         tecnicos: lista,
-        tecnico: lista.find((item) => String(item.id) === String(tecnicoInicial?.id)) || tecnicoInicial || lista[0] || null,
+        tecnico: lista.find((item) => String(item.id) === String(tecnicoDaSessao?.id)) || null,
         erro: lista.length === 0
           ? 'Nenhum técnico está salvo. Volte ao cadastro para adicionar um técnico.'
+          : !tecnicoDaSessao || !lista.some((item) => String(item.id) === String(tecnicoDaSessao.id))
+            ? 'A sessão demonstrativa não corresponde a um técnico válido.'
           : ''
       };
     } catch (error) {
       return {
         tecnicos: [],
-        tecnico: tecnicoInicial,
+        tecnico: null,
         erro: error.message || 'Não foi possível carregar os técnicos salvos.'
       };
     }
@@ -49,9 +54,11 @@ export default function Dashboard() {
   const [erroTecnicos] = useState(dadosTecnicos.erro);
   const [ordens, setOrdens] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [erroOrdens, setErroOrdens] = useState('');
+  const [tentativaCarregamento, setTentativaCarregamento] = useState(0);
   const [busca, setBusca] = useState('');
   const [filtroApenasMinhas, setFiltroApenasMinhas] = useState(false);
-  const [statusFiltro, setStatusFiltro] = useState('Todos');
+  const [statusFiltro, setStatusFiltro] = useState(STATUS_TODOS);
   const [showMenu, setShowMenu] = useState(false);
   const [showPerfil, setShowPerfil] = useState(false);
   const [tecnicoAlvo, setTecnicoAlvo] = useState(null);
@@ -64,28 +71,37 @@ export default function Dashboard() {
     tecnicoId: dadosTecnicos.tecnico?.id ?? ''
   }));
   const [loadingOS, setLoadingOS] = useState(false);
+  const [erroSalvarOS, setErroSalvarOS] = useState('');
+  const [osSelecionada, setOsSelecionada] = useState(null);
+  const [editandoOS, setEditandoOS] = useState(false);
+  const [salvandoEdicao, setSalvandoEdicao] = useState(false);
+  const [erroEdicao, setErroEdicao] = useState('');
 
   useEffect(() => {
     let ativo = true;
-    apiService.getOrdens('******', filtroApenasMinhas, statusFiltro).then((dados) => {
-      if (ativo) {
-        setOrdens(dados);
-        setLoading(false);
-      }
-    });
+    apiService.getOrdens()
+      .then((dados) => {
+        if (ativo) setOrdens(dados);
+      })
+      .catch((erro) => {
+        if (ativo) setErroOrdens(erro.message || 'Não foi possível carregar as ordens de serviço.');
+      })
+      .finally(() => {
+        if (ativo) setLoading(false);
+      });
     return () => {
       ativo = false;
     };
-  }, [filtroApenasMinhas, statusFiltro]);
+  }, [tentativaCarregamento]);
 
   const ordensFiltradas = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     return ordens.filter((ordem) => {
-      if (filtroApenasMinhas && ordem.tecnicoId !== tecnicoLogado?.id) return false;
+      if (filtroApenasMinhas && String(ordem.tecnicoId) !== String(tecnicoLogado?.id)) return false;
       if (statusFiltro !== 'Todos' && ordem.status !== statusFiltro) return false;
       if (!termo) return true;
-      return [ordem.cliente, ordem.equipamento, ordem.tecnicoNome]
-        .some((valor) => valor.toLowerCase().includes(termo));
+      return [ordem.id, ordem.cliente, ordem.equipamento, ordem.tecnicoNome, ordem.defeito, ordem.contato]
+        .some((valor) => String(valor ?? '').toLowerCase().includes(termo));
     });
   }, [busca, filtroApenasMinhas, ordens, statusFiltro, tecnicoLogado?.id]);
 
@@ -114,20 +130,46 @@ export default function Dashboard() {
 
   const salvarOS = async (evento) => {
     evento.preventDefault();
+    setErroSalvarOS('');
     setLoadingOS(true);
     try {
-      const novaOrdem = await apiService.criarOS('******', novaOS);
+      const novaOrdem = await apiService.criarOS(novaOS);
       setOrdens((atuais) => [novaOrdem, ...atuais]);
       setNovaOS({ ...novaOSInicial, tecnicoId: tecnicoLogado?.id ?? '' });
       setShowModalOS(false);
+    } catch (erro) {
+      setErroSalvarOS(erro.message || 'Não foi possível salvar a ordem de serviço.');
     } finally {
       setLoadingOS(false);
     }
   };
 
+  const salvarEdicaoOS = async (evento, alteracoes) => {
+    evento.preventDefault();
+    setErroEdicao('');
+    setSalvandoEdicao(true);
+    try {
+      const atualizada = await apiService.atualizarOS(osSelecionada.id, alteracoes);
+      setOrdens((atuais) => atuais.map((ordem) => (
+        String(ordem.id) === String(atualizada.id) ? atualizada : ordem
+      )));
+      setOsSelecionada(atualizada);
+      setEditandoOS(false);
+    } catch (erro) {
+      setErroEdicao(erro.message || 'Não foi possível atualizar a ordem de serviço.');
+    } finally {
+      setSalvandoEdicao(false);
+    }
+  };
+
   const handleLogout = () => {
     setShowMenu(false);
-    navigate('/login');
+    try {
+      encerrarSessao();
+      navigate('/login', { replace: true });
+    } catch (erro) {
+      setErroOrdens(erro.message || 'Não foi possível encerrar a sessão.');
+    }
   };
 
   if (!tecnicoLogado) {
@@ -165,7 +207,31 @@ export default function Dashboard() {
           disabledNovaOS={Boolean(erroTecnicos)}
           onOpenModalOS={() => setShowModalOS(true)}
         />
-        <OSTable ordens={ordensFiltradas} loading={loading} />
+        {erroOrdens && !loading && (
+          <div className="alert alert-danger d-flex flex-wrap align-items-center justify-content-between gap-2" role="alert">
+            <span>{erroOrdens}</span>
+            <button type="button" className="btn btn-outline-danger btn-sm" onClick={() => {
+              setErroOrdens('');
+              setLoading(true);
+              setTentativaCarregamento((tentativa) => tentativa + 1);
+            }}>Tentar novamente</button>
+          </div>
+        )}
+        <OSTable
+          ordens={ordensFiltradas}
+          loading={loading}
+          erro={erroOrdens}
+          onView={(ordem) => {
+            setOsSelecionada(ordem);
+            setEditandoOS(false);
+            setErroEdicao('');
+          }}
+          onEdit={(ordem) => {
+            setOsSelecionada(ordem);
+            setEditandoOS(true);
+            setErroEdicao('');
+          }}
+        />
       </main>
       <AuthModal
         tecnicoAlvo={tecnicoAlvo}
@@ -186,8 +252,22 @@ export default function Dashboard() {
           setNovaOS={setNovaOS}
           tecnicos={tecnicos}
           loading={loadingOS}
+          erro={erroSalvarOS}
           onClose={() => setShowModalOS(false)}
           onSave={salvarOS}
+        />
+      )}
+      {osSelecionada && (
+        <OSDetailsModal
+          key={String(osSelecionada.id)}
+          os={osSelecionada}
+          editando={editandoOS}
+          tecnicos={tecnicos}
+          loading={salvandoEdicao}
+          erro={erroEdicao}
+          onClose={() => setOsSelecionada(null)}
+          onEdit={() => setEditandoOS(true)}
+          onSave={salvarEdicaoOS}
         />
       )}
     </div>
