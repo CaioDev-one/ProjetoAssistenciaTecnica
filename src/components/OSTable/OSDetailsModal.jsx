@@ -4,6 +4,9 @@ import { formatarValorBRL, STATUS_OS } from '../services/osConstants.js';
 
 export default function OSDetailsModal({ os, editando, tecnicos, loading, erro, onClose, onEdit, onSave }) {
   const titleId = useId();
+  const handleClose = () => {
+    if (!loading) onClose();
+  };
   const [form, setForm] = useState(() => ({
     ...os,
     valor: String(os.valor ?? 0),
@@ -24,7 +27,7 @@ export default function OSDetailsModal({ os, editando, tecnicos, loading, erro, 
   return (
     <Modal
       show
-      onHide={onClose}
+      onHide={handleClose}
       centered
       scrollable
       size="lg"
@@ -34,13 +37,14 @@ export default function OSDetailsModal({ os, editando, tecnicos, loading, erro, 
       backdrop={loading ? 'static' : true}
       contentClassName="border-0 shadow-lg rounded-4 overflow-hidden"
     >
-      <Modal.Header className="bg-dark text-white" closeButton closeVariant="white" closeLabel="Fechar detalhes">
+      <Modal.Header className="bg-dark text-white">
         <Modal.Title id={titleId} className="fs-6">
           {editando ? 'Editar ordem de serviço' : `Detalhes da OS #${os.id}`}
         </Modal.Title>
+        <button type="button" className="btn-close btn-close-white" aria-label="Fechar detalhes" disabled={loading} onClick={handleClose} />
       </Modal.Header>
-      <form onSubmit={(evento) => onSave(evento, form)}>
-        <Modal.Body className="p-4">
+      <form className="d-flex flex-column flex-grow-1 overflow-hidden" style={{ minHeight: 0 }} onSubmit={(evento) => onSave(evento, form)}>
+        <Modal.Body className="p-4 flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
           {erro && <div className="alert alert-danger" role="alert">{erro}</div>}
           {editando ? (
             <div className="row g-3">
@@ -111,8 +115,8 @@ export default function OSDetailsModal({ os, editando, tecnicos, loading, erro, 
             </dl>
           )}
         </Modal.Body>
-        <Modal.Footer>
-          <button type="button" className="btn btn-outline-secondary" disabled={loading} onClick={onClose}>Fechar</button>
+        <Modal.Footer className="flex-shrink-0">
+          <button type="button" className="btn btn-outline-secondary" disabled={loading} onClick={handleClose}>Fechar</button>
           {editando ? (
             <button type="submit" className="btn btn-primary" disabled={loading}>
               {loading ? 'Salvando...' : 'Salvar alterações'}

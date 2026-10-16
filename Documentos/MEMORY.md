@@ -2,6 +2,30 @@
 
 Registro de contexto e decisões para continuidade. Não é mecanismo automático de memória nem substitui o código atual. Não incluir credenciais ou dados reais de clientes.
 
+## 15/10/2026 — revisão do commit 66e75af
+
+### Correções
+
+- O Dashboard importa `../AuthModal/authModal.jsx`, correspondente ao caminho versionado. `git ls-files` confirmou o casing; `npm run build` passou no macOS.
+- NovaOSModal associa label de condição ao campo, define `id="nova-os-defeito"` no textarea e anuncia seleção de acessórios com `aria-pressed`.
+- Formulários dos modais usam layout flexível, corpo rolável e rodapé fora da área de rolagem. OSDetailsModal bloqueia X, botão Fechar, Escape e backdrop enquanto salva.
+- README, arquitetura e tarefas foram revisados para não descrever persistência em memória, token fictício ou ações Ver/Editar como estado atual.
+
+### Verificação executada
+
+- `npm run lint` e `npm run build`: aprovados no macOS; build Linux não executado.
+- Navegador em 390×500 px: criação, detalhes, edição do status e persistência após recarga aprovadas.
+- Corpo rolável: Nova OS 1.557 px/361 px; detalhes 764 px/332 px. Rodapés permaneceram visíveis.
+- Durante salvamento deliberadamente atrasado, os dois comandos de fechar ficaram desabilitados; Escape e clique no backdrop não fecharam o modal.
+- Tabulação permaneceu dentro dos modais de OS; Escape fechou e devolveu o foco ao acionador.
+- A criação/edição usou armazenamento local isolado e restaurou os valores anteriores; ao concluir a verificação de teclado, foram removidas as chaves de OS/sessão de teste e preservada a lista demo de técnicos. Não foi adicionada suíte automatizada ao repositório.
+
+### Pendências
+
+- Validar build em Linux e cenários de falha de persistência.
+- Testar no navegador filtros combinados, troca de técnico e navegação por teclado nos fluxos de login/cadastro/troca.
+- Autenticação, senhas locais e persistência continuam apenas demonstrativas; não usar dados reais.
+
 ## 30/09/2026 — T02: fonte única de técnicos
 
 ### Entregue

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/apiServices.js';
-import AuthModal from '../AuthModal/AuthModal.jsx';
+import AuthModal from '../AuthModal/authModal.jsx';
 import FilterBar from '../FilterBar/filterBars.jsx';
 import KpiCards from '../KpiCards/kpiCards.jsx';
 import Navbar from '../NavBar/navBar.jsx';

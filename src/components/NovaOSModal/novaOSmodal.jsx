@@ -3,6 +3,9 @@ import Modal from 'react-bootstrap/Modal';
 
 export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro, onClose, onSave }) {
   const titleId = useId();
+  const handleClose = () => {
+    if (!loading) onClose();
+  };
   const acessoriosOpcoes = ['Carregador', 'Cabo USB', 'Capa de Proteção', 'Caixa Original', 'Cartão SIM/Memory', 'Fonte de Alimentação', 'Cabo de Força (PC)'];
   const servicosFrequentes = [
     'Limpeza Preventiva & Pasta Térmica',
@@ -25,7 +28,7 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
   return (
     <Modal
       show
-      onHide={onClose}
+      onHide={handleClose}
       centered
       scrollable
       size="lg"
@@ -39,8 +42,8 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
         <Modal.Title id={titleId} className="fs-6">Nova Ordem de Serviço</Modal.Title>
         <button type="button" className="btn-close btn-close-white" aria-label="Fechar nova ordem" disabled={loading} onClick={onClose} />
       </Modal.Header>
-      <form onSubmit={onSave}>
-        <Modal.Body className="p-3 p-md-4 bg-light">
+      <form className="d-flex flex-column flex-grow-1 overflow-hidden" style={{ minHeight: 0 }} onSubmit={onSave}>
+        <Modal.Body className="p-3 p-md-4 bg-light flex-grow-1 overflow-auto" style={{ minHeight: 0 }}>
           {erro && <div className="alert alert-danger" role="alert">{erro}</div>}
               
               {/* SEÇÃO 1: DADOS DO CLIENTE */}
@@ -118,7 +121,7 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
                     />
                   </div>
                   <div className="col-12">
-                    <label className="form-label fw-semibold fs-7 text-secondary">Estado Físico / Avarias Pré-existentes</label>
+                    <label htmlFor="nova-os-condicao" className="form-label fw-semibold fs-7 text-secondary">Estado Físico / Avarias Pré-existentes</label>
                     <input 
                       id="nova-os-condicao"
                       type="text" 
@@ -160,7 +163,8 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
                       ))}
                     </div>
 
-                    <textarea 
+                    <textarea
+                      id="nova-os-defeito"
                       className="form-control" 
                       rows="2" 
                       required
@@ -180,6 +184,7 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
                             key={item}
                             type="button"
                             className={`btn btn-sm rounded-pill px-3 fw-semibold ${ativo ? 'btn-primary' : 'btn-outline-secondary'}`}
+                            aria-pressed={ativo}
                             onClick={() => toggleAcessorio(item)}
                           >
                             {ativo ? '✓ ' : '+ '} {item}
@@ -236,8 +241,8 @@ export default function NovaOSModal({ novaOS, setNovaOS, tecnicos, loading, erro
               </div>
 
         </Modal.Body>
-        <Modal.Footer className="bg-white border-top justify-content-between">
-          <button type="button" className="btn btn-outline-secondary btn-sm fw-semibold" disabled={loading} onClick={onClose}>Cancelar</button>
+        <Modal.Footer className="bg-white border-top justify-content-between flex-shrink-0">
+          <button type="button" className="btn btn-outline-secondary btn-sm fw-semibold" disabled={loading} onClick={handleClose}>Cancelar</button>
           <button type="submit" className="btn btn-primary btn-sm fw-bold px-4" disabled={loading}>
             {loading ? 'Salvando...' : 'Criar Ordem de Serviço'}
           </button>
